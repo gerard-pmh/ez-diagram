@@ -26,25 +26,25 @@ const handleMouseDown = (event: MouseEvent) => {
         diagramRenderer.intersectCorners(event.clientX, event.clientY) ??
         diagramRenderer.intersectBorders(event.clientX, event.clientY);
       if (itemId1) {
-        diagramRenderer.unselectAll();
-        diagramRenderer.select(itemId1);
+        diagramRenderer.diagram.unselectAll();
+        diagramRenderer.diagram.selectItem(itemId1);
         diagramRenderer.render();
         mode.value = "resize";
       } else {
         itemId1 = diagramRenderer.intersect(event.clientX, event.clientY);
         if (itemId1) {
-          diagramRenderer.unselectAll();
-          diagramRenderer.select(itemId1);
+          diagramRenderer.diagram.unselectAll();
+          diagramRenderer.diagram.selectItem(itemId1);
           diagramRenderer.render();
           mode.value = "selected";
         }
       }
       break;
     case "selected":
-      diagramRenderer.unselectAll();
+      diagramRenderer.diagram.unselectAll();
       itemId1 = diagramRenderer.intersect(event.clientX, event.clientY);
       if (itemId1) {
-        diagramRenderer.select(itemId1);
+        diagramRenderer.diagram.selectItem(itemId1);
       } else {
         mode.value = "normal";
       }
@@ -71,7 +71,7 @@ const handleMouseDown = (event: MouseEvent) => {
     case "connect_to":
       itemId2 = diagramRenderer.intersect(event.clientX, event.clientY);
       if (itemId1 && itemId2) {
-        diagramRenderer.connect(itemId1, itemId2);
+        diagramRenderer.diagram.connectItems(itemId1, itemId2);
         diagramRenderer.render();
       }
       itemId1 = undefined;
@@ -86,18 +86,18 @@ const handleMouseMove = (event: MouseEvent) => {
   switch (mode.value) {
     case "normal":
       if (isMouseDown.value) {
-        diagramRenderer.translate(event.movementX, event.movementY);
+        diagramRenderer.context.translate(event.movementX, event.movementY);
         diagramRenderer.render();
       }
       break;
     case "selected":
       if (isMouseDown.value) {
-        diagramRenderer.moveItem(event.movementX, event.movementY);
+        diagramRenderer.moveSelectedItems(event.movementX, event.movementY);
         diagramRenderer.render();
       }
       break;
     case "resize":
-      diagramRenderer.resizeItem(event.movementX, event.movementY);
+      diagramRenderer.diagram.resizeSelectedItems(event.movementX, event.movementY);
       diagramRenderer.render();
   }
 };
@@ -116,7 +116,7 @@ const handleInput = (event: Event) => {
 };
 
 const exitWriting = () => {
-  diagramRenderer.unselectAll();
+  diagramRenderer.diagram.unselectAll();
   diagramRenderer.render();
   mode.value = "normal";
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

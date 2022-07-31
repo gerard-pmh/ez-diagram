@@ -1,4 +1,5 @@
 import type { Rectangle } from "@/utils/shapes";
+import rough from "roughjs";
 
 export interface DiagramItem extends Rectangle {
   id: number;
@@ -6,52 +7,6 @@ export interface DiagramItem extends Rectangle {
   shape: "none" | "rectangle" | "circle";
   text: string;
   selected: boolean;
-}
-
-export function bounds(item: DiagramItem) {
-  return {
-    x1: item.x - item.width / 2,
-    x2: item.x + item.width / 2,
-    y1: item.y - item.height / 2,
-    y2: item.y + item.height / 2,
-  };
-}
-
-export type XPosition = "middle" | "left" | "right";
-export type YPosition = "middle" | "top" | "bottom";
-
-/**
- * Gives the item2 position relative to the item1
- */
-export function relativePosition(
-  item1: DiagramItem,
-  item2: DiagramItem
-): { xPos: XPosition; yPos: YPosition } {
-  const item1Bounds = bounds(item1);
-  const item2Bounds = bounds(item2);
-
-  let xPos: XPosition = "middle";
-  let yPos: YPosition = "middle";
-
-  if (item1Bounds.x1 < item2Bounds.x1 && item1Bounds.x1 < item2Bounds.x2) {
-    xPos = "right";
-  } else if (
-    item1Bounds.x1 > item2Bounds.x1 &&
-    item1Bounds.x1 > item2Bounds.x2
-  ) {
-    xPos = "left";
-  }
-
-  if (item1Bounds.y1 < item2Bounds.y1 && item1Bounds.y1 < item2Bounds.y2) {
-    yPos = "top";
-  } else if (
-    item1Bounds.y1 > item2Bounds.y1 &&
-    item1Bounds.y1 > item2Bounds.y2
-  ) {
-    yPos = "bottom";
-  }
-
-  return { xPos, yPos };
 }
 
 export interface DiagramConnection {
@@ -64,4 +19,72 @@ export class Diagram {
   nextId = 1;
   items: DiagramItem[] = [];
   connections: DiagramConnection[] = [];
+
+  get selectedItems() {
+    return this.items.filter((item) => item.selected);
+  }
+
+  getItemById(itemId: number) {
+    return this.items.find((item) => item.id === itemId);
+  }
+
+  unselectAll() {
+    this.items.forEach((item) => (item.selected = false));
+  }
+
+  selectItem(itemId: number) {
+    this.unselectAll();
+    const item = this.getItemById(itemId);
+    if (item) {
+      item.selected = true;
+    }
+  }
+
+  moveSelectedItems(dX: number, dY: number) {
+    this.selectedItems.forEach((item) => {
+      item.x += dX;
+      item.y += dY;
+    });
+  }
+
+  resizeSelectedItems(dWidth: number, dHeight: number) {
+    this.selectedItems.forEach((item) => {
+      item.width += dWidth;
+      item.height += dHeight;
+    });
+  }
+
+  writeInSelectedItems(text: string, minWidth: number) {
+    this.selectedItems.forEach((item) => {
+      item.text = text;
+      if (item.width < minWidth) {
+        item.width = minWidth;
+      }
+    });
+  }
+
+  addItem(x: number, y: number) {
+    this.unselectAll();
+    const seed = rough.newSeed();
+    const width = 100;
+    const height = 40;
+    const item: DiagramItem = {
+      id: this.nextId++,
+      x,
+      y,
+      width,
+      height,
+      seed,
+      shape: "rectangle",
+      text: "",
+      selected: true,
+    };
+    this.items.push(item);
+    return item;
+  }
+
+  connectItems(itemId1: number, itemId2: number) {
+    const seed = rough.newSeed();
+    this.connections.push({ itemId1, itemId2, seed });
+  }
 }

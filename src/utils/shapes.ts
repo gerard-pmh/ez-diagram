@@ -3,19 +3,6 @@ export interface Point {
   y: number;
 }
 
-export interface Rectangle extends Point {
-  width: number;
-  height: number;
-}
-
-export type XRelativePosition = "left" | "right" | "middle";
-export type YRelativePosition = "top" | "bottom" | "middle";
-
-export interface RelativePosition {
-  horizontal: XRelativePosition;
-  vertical: YRelativePosition;
-}
-
 export interface Corner extends Point, RelativePosition {}
 
 export interface Border extends RelativePosition {
