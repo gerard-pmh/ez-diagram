@@ -1,15 +1,8 @@
 import type { DiagramConnection, DiagramItem } from "@/diagram/diagram";
 import { Diagram } from "@/diagram/diagram";
 import { RenderingContext } from "@/diagram/rendering-context";
-import rough from "roughjs";
-import {
-  pointIntersectRect,
-  pointIntersectRectBorder,
-  pointIntersectRectCorner,
-} from "@/utils/shapes";
 import { getArrowPath } from "@/utils/arrows";
-
-const intersectPadding = 16;
+import { doesIntersectRect, doesIntersectRectBorder } from "@/utils/rectangle";
 
 export class DiagramRenderer {
   diagram: Diagram;
@@ -56,7 +49,6 @@ export class DiagramRenderer {
     const item2 = this.diagram.getItemById(connection.itemId2);
     if (item1 && item2) {
       const path = getArrowPath(item1, item2);
-      console.log(path);
       if (path) {
         this.context.rc.path(path, {
           seed: connection.seed,
@@ -82,37 +74,19 @@ export class DiagramRenderer {
 
   intersectBorders(x: number, y: number): number | undefined {
     return this.diagram.items.find((item) =>
-      pointIntersectRectBorder(
-        {
-          x: this.context.unContextualizedX(x),
-          y: this.context.unContextualizedY(y),
-        },
-        item,
-        16
-      )
-    )?.id;
-  }
-
-  intersectCorners(x: number, y: number): number | undefined {
-    return this.diagram.items.find((item) =>
-      pointIntersectRectCorner(
-        {
-          x: this.context.unContextualizedX(x),
-          y: this.context.unContextualizedY(y),
-        },
-        item,
-        16
+      doesIntersectRectBorder(
+        this.context.unContextualizedX(x),
+        this.context.unContextualizedY(y),
+        item
       )
     )?.id;
   }
 
   intersect(x: number, y: number): number | undefined {
     return this.diagram.items.find((item) =>
-      pointIntersectRect(
-        {
-          x: this.context.unContextualizedX(x),
-          y: this.context.unContextualizedY(y),
-        },
+      doesIntersectRect(
+        this.context.unContextualizedX(x),
+        this.context.unContextualizedY(y),
         item
       )
     )?.id;

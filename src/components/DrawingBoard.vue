@@ -22,9 +22,7 @@ const handleMouseDown = (event: MouseEvent) => {
   isMouseDown.value = true;
   switch (mode.value) {
     case "normal":
-      itemId1 =
-        diagramRenderer.intersectCorners(event.clientX, event.clientY) ??
-        diagramRenderer.intersectBorders(event.clientX, event.clientY);
+      itemId1 = diagramRenderer.intersectBorders(event.clientX, event.clientY);
       if (itemId1) {
         diagramRenderer.diagram.unselectAll();
         diagramRenderer.diagram.selectItem(itemId1);

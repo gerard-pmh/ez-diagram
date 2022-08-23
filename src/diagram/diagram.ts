@@ -1,4 +1,4 @@
-import type { Rectangle } from "@/utils/shapes";
+import type { Rectangle } from "@/utils/rectangle";
 import rough from "roughjs";
 
 export interface DiagramItem extends Rectangle {
