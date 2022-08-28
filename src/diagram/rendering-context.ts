@@ -1,6 +1,7 @@
 import type { RoughCanvas } from "roughjs/bin/canvas";
 import rough from "roughjs";
 import { diagramItemPadding, defaultFont } from "@/utils/constants";
+import type { Rectangle } from "@/utils/rectangle";
 
 export class RenderingContext {
   canvas: HTMLCanvasElement;
@@ -55,6 +56,15 @@ export class RenderingContext {
 
   unContextualizedY(y: number) {
     return y / this.scale - this.translateY;
+  }
+
+  contextualizedRect(rect: Rectangle): Rectangle {
+    return {
+      x: this.contextualizedX(rect.x),
+      y: this.contextualizedY(rect.y),
+      width: rect.width * this.scale,
+      height: rect.height * this.scale,
+    };
   }
 
   getItemMinWidth(text: string) {

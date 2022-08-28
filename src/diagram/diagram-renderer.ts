@@ -25,8 +25,8 @@ export class DiagramRenderer {
     const { rc, scale } = this.context;
     const { x, y, width, height, seed } = item;
     rc.rectangle(
-      this.context.contextualizedX(x) - (width * scale) / 2,
-      this.context.contextualizedY(y) - (height * scale) / 2,
+      this.context.contextualizedX(x - width / 2),
+      this.context.contextualizedY(y - height / 2),
       width * scale,
       height * scale,
       {
@@ -48,7 +48,10 @@ export class DiagramRenderer {
     const item1 = this.diagram.getItemById(connection.itemId1);
     const item2 = this.diagram.getItemById(connection.itemId2);
     if (item1 && item2) {
-      const path = getArrowPath(item1, item2);
+      const path = getArrowPath(
+        this.context.contextualizedRect(item1),
+        this.context.contextualizedRect(item2)
+      );
       if (path) {
         this.context.rc.path(path, {
           seed: connection.seed,
@@ -61,10 +64,7 @@ export class DiagramRenderer {
   }
 
   addItem(x: number, y: number) {
-    this.diagram.addItem(
-      this.context.unContextualizedX(x),
-      this.context.unContextualizedY(y)
-    );
+    this.diagram.addItem(x, y);
   }
 
   writeInItem(text: string) {
@@ -74,22 +74,12 @@ export class DiagramRenderer {
 
   intersectBorders(x: number, y: number): number | undefined {
     return this.diagram.items.find((item) =>
-      doesIntersectRectBorder(
-        this.context.unContextualizedX(x),
-        this.context.unContextualizedY(y),
-        item
-      )
+      doesIntersectRectBorder(x, y, item)
     )?.id;
   }
 
   intersect(x: number, y: number): number | undefined {
-    return this.diagram.items.find((item) =>
-      doesIntersectRect(
-        this.context.unContextualizedX(x),
-        this.context.unContextualizedY(y),
-        item
-      )
-    )?.id;
+    return this.diagram.items.find((item) => doesIntersectRect(x, y, item))?.id;
   }
 
   moveSelectedItems(dX: number, dY: number) {

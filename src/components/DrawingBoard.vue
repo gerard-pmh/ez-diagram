@@ -20,16 +20,18 @@ let itemId1: number | undefined;
 let itemId2: number | undefined;
 const handleMouseDown = (event: MouseEvent) => {
   isMouseDown.value = true;
+  const x = diagramRenderer.context.unContextualizedX(event.clientX);
+  const y = diagramRenderer.context.unContextualizedY(event.clientY);
   switch (mode.value) {
     case "normal":
-      itemId1 = diagramRenderer.intersectBorders(event.clientX, event.clientY);
+      itemId1 = diagramRenderer.intersectBorders(x, y);
       if (itemId1) {
         diagramRenderer.diagram.unselectAll();
         diagramRenderer.diagram.selectItem(itemId1);
         diagramRenderer.render();
         mode.value = "resize";
       } else {
-        itemId1 = diagramRenderer.intersect(event.clientX, event.clientY);
+        itemId1 = diagramRenderer.intersect(x, y);
         if (itemId1) {
           diagramRenderer.diagram.unselectAll();
           diagramRenderer.diagram.selectItem(itemId1);
@@ -40,7 +42,7 @@ const handleMouseDown = (event: MouseEvent) => {
       break;
     case "selected":
       diagramRenderer.diagram.unselectAll();
-      itemId1 = diagramRenderer.intersect(event.clientX, event.clientY);
+      itemId1 = diagramRenderer.intersect(x, y);
       if (itemId1) {
         diagramRenderer.diagram.selectItem(itemId1);
       } else {
@@ -49,7 +51,7 @@ const handleMouseDown = (event: MouseEvent) => {
       diagramRenderer.render();
       break;
     case "create":
-      diagramRenderer.addItem(event.clientX, event.clientY);
+      diagramRenderer.addItem(x, y);
       diagramRenderer.render();
       mode.value = "resize";
       break;
@@ -59,7 +61,7 @@ const handleMouseDown = (event: MouseEvent) => {
       input.value!.focus();
       break;
     case "connect_from":
-      itemId1 = diagramRenderer.intersect(event.clientX, event.clientY);
+      itemId1 = diagramRenderer.intersect(x, y);
       if (itemId1) {
         mode.value = "connect_to";
       } else {
@@ -67,7 +69,7 @@ const handleMouseDown = (event: MouseEvent) => {
       }
       break;
     case "connect_to":
-      itemId2 = diagramRenderer.intersect(event.clientX, event.clientY);
+      itemId2 = diagramRenderer.intersect(x,y);
       if (itemId1 && itemId2) {
         diagramRenderer.diagram.connectItems(itemId1, itemId2);
         diagramRenderer.render();
@@ -103,6 +105,7 @@ const handleMouseMove = (event: MouseEvent) => {
 const handleWheel = (event: WheelEvent) => {
   if (mode.value !== "normal") return;
   diagramRenderer.context.scale += event.deltaY < 0 ? 0.1 : -0.1;
+  diagramRenderer.context.translateX
   diagramRenderer.render();
 };
 
@@ -144,6 +147,7 @@ const exitWriting = () => {
 canvas {
   position: fixed;
 }
+
 input {
   position: fixed;
   opacity: 0;
